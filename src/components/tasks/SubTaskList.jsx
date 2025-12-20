@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { TrashIcon } from '@heroicons/react/24/solid';
 
-export default function SubTaskList({ taskId, onProgressUpdate }) {
+export default function SubTaskList({ taskId, taskStatus, onProgressUpdate, onTaskStatusUpdate }) {
     const [subTasks, setSubTasks] = useState([]);
     const [newSubTaskTitle, setNewSubTaskTitle] = useState('');
 
@@ -40,6 +40,11 @@ export default function SubTaskList({ taskId, onProgressUpdate }) {
         else if (data) {
             setSubTasks([...subTasks, ...data]);
             setNewSubTaskTitle('');
+            
+            // If task was completed and we're adding a new subtask, change status to ongoing
+            if (taskStatus === 'completed' && onTaskStatusUpdate) {
+                onTaskStatusUpdate(taskId, 'ongoing');
+            }
         }
     };
 

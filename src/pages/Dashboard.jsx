@@ -3,8 +3,13 @@ import Layout from '../components/layout/Layout';
 import TaskList from '../components/tasks/TaskList';
 import AddTask from '../components/tasks/AddTask';
 import Modal from '../components/ui/Modal';
+import Spinner from '../components/ui/Spinner';
+import SkeletonLoader from '../components/ui/SkeletonLoader';
+import EmptyState from '../components/ui/EmptyState';
+import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../components/ui/toast/ToastContext';
 import { PlusCircleIcon } from '@heroicons/react/24/solid';
 
 export default function Dashboard() {
@@ -12,8 +17,14 @@ export default function Dashboard() {
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('ongoing');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isAddingTask, setIsAddingTask] = useState(false);
+    const [updatingTaskIds, setUpdatingTaskIds] = useState(new Set());
+    const [deletingTaskIds, setDeletingTaskIds] = useState(new Set());
+    const toast = useToast();
 
     const fetchTasks = async () => {
+        setIsLoading(true);
         const { data, error } = await supabase
             .from('tasks')
             .select('*')
@@ -21,9 +32,11 @@ export default function Dashboard() {
 
         if (error) {
             console.error('Error fetching tasks:', error);
+            toast.error('Error', 'Failed to fetch tasks.');
         } else {
             setTasks(data);
         }
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -32,7 +45,16 @@ export default function Dashboard() {
         }
     }, [user]);
 
+    // Keyboard shortcuts
+    useKeyboardShortcuts({
+        'ctrl+n': () => setIsModalOpen(true),
+        'ctrl+1': () => setActiveTab('ongoing'),
+        'ctrl+2': () => setActiveTab('completed'),
+        'escape': () => setIsModalOpen(false),
+    }, [setIsModalOpen, setActiveTab]);
+
     const handleAddTask = async (task, subTasks) => {
+        setIsAddingTask(true);
         const { data: taskData, error: taskError } = await supabase
             .from('tasks')
             .insert([{ ...task, user_id: user.id }])
@@ -40,6 +62,8 @@ export default function Dashboard() {
 
         if (taskError) {
             console.error('Error adding task:', taskError);
+            toast.error('Error', 'Failed to add task. Please try again.');
+            setIsAddingTask(false);
             return;
         }
 
@@ -53,16 +77,21 @@ export default function Dashboard() {
 
             if (subTaskError) {
                 console.error('Error adding sub-tasks:', subTaskError);
+                toast.error('Error', 'Failed to add sub-tasks. Please try again.');
                 // Optional: attempt to delete the parent task if sub-tasks fail
                 await supabase.from('tasks').delete().eq('id', newTaskId);
+                setIsAddingTask(false);
             } else {
                 fetchTasks(); // Refetch all tasks to get the new one with its sub-tasks
                 setIsModalOpen(false);
+                toast.success('Success', 'Task added successfully.');
+                setIsAddingTask(false);
             }
         }
     };
 
     const handleUpdateTaskStatus = async (id, status) => {
+        setUpdatingTaskIds(prev => new Set(prev).add(id));
         const { error } = await supabase
             .from('tasks')
             .update({ status })
@@ -70,12 +99,20 @@ export default function Dashboard() {
 
         if (error) {
             console.error('Error updating task:', error);
+            toast.error('Error', 'Failed to update task status.');
         } else {
             fetchTasks(); // Refetch tasks to update the UI
+            toast.success('Success', 'Task status updated.');
         }
+        setUpdatingTaskIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(id);
+            return newSet;
+        });
     };
 
     const handleDeleteTask = async (id) => {
+        setDeletingTaskIds(prev => new Set(prev).add(id));
         const { error } = await supabase
             .from('tasks')
             .delete()
@@ -83,9 +120,16 @@ export default function Dashboard() {
 
         if (error) {
             console.error('Error deleting task:', error);
+            toast.error('Error', 'Failed to delete task.');
         } else {
             setTasks(tasks.filter((task) => task.id !== id));
+            toast.success('Success', 'Task deleted successfully.');
         }
+        setDeletingTaskIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(id);
+            return newSet;
+        });
     };
 
     const ongoingTasks = tasks.filter(task => task.status === 'ongoing' || task.status === 'upcoming');
@@ -94,46 +138,108 @@ export default function Dashboard() {
     return (
         <Layout>
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
-                <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700">Add Task</button>
+                <div className="flex items-center space-x-3">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {activeTab === 'ongoing' ? 'Ongoing Tasks' : 'Completed Tasks'}
+                    </h1>
+                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                        activeTab === 'ongoing' 
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' 
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                    }`}>
+                        {activeTab === 'ongoing' ? 'Active' : 'Done'}
+                    </span>
+                </div>
             </div>
 
-            <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="border-b border-gray-200 dark:border-gray-700" role="tablist" aria-label="Task categories">
                 <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button onClick={() => setActiveTab('ongoing')} className={`${activeTab === 'ongoing' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>
+                    <button 
+                        onClick={() => setActiveTab('ongoing')} 
+                        className={`${activeTab === 'ongoing' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                        role="tab"
+                        aria-selected={activeTab === 'ongoing'}
+                        aria-controls="ongoing-panel"
+                        id="ongoing-tab"
+                        tabIndex={activeTab === 'ongoing' ? 0 : -1}
+                    >
                         Ongoing
+                        <span className="ml-2 text-xs text-gray-400">Ctrl+1</span>
                     </button>
-                    <button onClick={() => setActiveTab('completed')} className={`${activeTab === 'completed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>
+                    <button 
+                        onClick={() => setActiveTab('completed')} 
+                        className={`${activeTab === 'completed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                        role="tab"
+                        aria-selected={activeTab === 'completed'}
+                        aria-controls="completed-panel"
+                        id="completed-tab"
+                        tabIndex={activeTab === 'completed' ? 0 : -1}
+                    >
                         Completed
+                        <span className="ml-2 text-xs text-gray-400">Ctrl+2</span>
                     </button>
                 </nav>
             </div>
 
             <div className="mt-8">
                 {activeTab === 'ongoing' && (
-                    <div>
-                        {ongoingTasks.length > 0 ? (
-                            <TaskList tasks={ongoingTasks} onUpdateStatus={handleUpdateTaskStatus} onDelete={handleDeleteTask} />
-                        ) : (
-                            <div className="text-center">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No ongoing tasks</h3>
-                                <p className="mt-1 text-sm text-gray-500">Get started by adding a new task.</p>
-                                <div className="mt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                                    >
-                                        <PlusCircleIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                                        New Task
-                                    </button>
-                                </div>
+                    <div 
+                        id="ongoing-panel"
+                        role="tabpanel"
+                        aria-labelledby="ongoing-tab"
+                        tabIndex={0}
+                    >
+                        {isLoading ? (
+                            <div className="space-y-4" aria-label="Loading ongoing tasks">
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                                        <SkeletonLoader lines={3} />
+                                    </div>
+                                ))}
                             </div>
+                        ) : ongoingTasks.length > 0 ? (
+                            <TaskList 
+                                tasks={ongoingTasks} 
+                                onUpdateStatus={handleUpdateTaskStatus} 
+                                onDelete={handleDeleteTask}
+                                updatingTaskIds={updatingTaskIds}
+                                deletingTaskIds={deletingTaskIds}
+                            />
+                        ) : (
+                            <EmptyState 
+                                type="ongoing" 
+                                onAction={() => setIsModalOpen(true)}
+                            />
                         )}
                     </div>
                 )}
                 {activeTab === 'completed' && (
-                    <TaskList tasks={completedTasks} onUpdateStatus={handleUpdateTaskStatus} onDelete={handleDeleteTask} />
+                    <div 
+                        id="completed-panel"
+                        role="tabpanel"
+                        aria-labelledby="completed-tab"
+                        tabIndex={0}
+                    >
+                        {isLoading ? (
+                            <div className="space-y-4" aria-label="Loading completed tasks">
+                                {Array.from({ length: 2 }).map((_, i) => (
+                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                                        <SkeletonLoader lines={3} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : completedTasks.length > 0 ? (
+                            <TaskList 
+                                tasks={completedTasks} 
+                                onUpdateStatus={handleUpdateTaskStatus} 
+                                onDelete={handleDeleteTask}
+                                updatingTaskIds={updatingTaskIds}
+                                deletingTaskIds={deletingTaskIds}
+                            />
+                        ) : (
+                            <EmptyState type="completed" />
+                        )}
+                    </div>
                 )}
             </div>
 

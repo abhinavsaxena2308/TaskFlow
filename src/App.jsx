@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import ToastProvider from './components/ui/toast/ToastProvider';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -35,7 +36,9 @@ export default function AppWrapper() {
         <Router>
             <ThemeProvider>
                 <AuthProvider>
-                    <App />
+                    <ToastProvider>
+                        <App />
+                    </ToastProvider>
                 </AuthProvider>
             </ThemeProvider>
         </Router>

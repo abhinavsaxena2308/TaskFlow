@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from '../ThemeToggle';
+import logo from '../../../public/logo.png'
 import Modal from '../ui/Modal';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
@@ -17,8 +18,13 @@ export default function Navbar() {
         <>
             <header className="sticky top-0 z-10 flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 sm:px-6 lg:px-8 shadow-sm">
                 <div className="flex items-center">
-                    <Link to="/dashboard" className="flex items-center space-x-2">
-                        <img src="/logo.png" alt="ToDoMaster Logo" className="h-8" />
+                    <Link to="/dashboard" className="flex items-center group">
+                        <div className="relative">
+                            <img src={logo} className="h-12 w-22 " alt="Task Flow Logo"/>
+                        </div>
+                        <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            Task Flow
+                        </span>
                     </Link>
                 </div>
                 <div className="flex items-center space-x-4">

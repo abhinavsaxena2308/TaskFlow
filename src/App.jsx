@@ -5,6 +5,7 @@ import ToastProvider from './components/ui/toast/ToastProvider';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
 
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route 
@@ -24,7 +26,7 @@ function App() {
             />
             <Route 
                 path="*" 
-                element={<Navigate to={user ? "/dashboard" : "/login"} />}
+                element={<Navigate to={user ? "/dashboard" : "/"} />}
             />
         </Routes>
     );

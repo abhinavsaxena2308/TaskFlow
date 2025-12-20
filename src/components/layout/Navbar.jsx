@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ThemeToggle from '../ThemeToggle';
 import logo from '../../../public/logo.png'
 import Modal from '../ui/Modal';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Navbar() {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const { signOut } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        // UI-only, no actual logout logic
+        signOut();
         setIsLogoutModalOpen(false);
-        console.log('Logout confirmed');
+        navigate('/');
     };
 
     return (

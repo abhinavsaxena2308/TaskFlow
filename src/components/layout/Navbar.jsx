@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import ThemeToggle from '../ThemeToggle';
 import Modal from '../ui/Modal';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
-import { FiMenu } from 'react-icons/fi';
 
-export default function Navbar({ toggleSidebar }) {
+export default function Navbar() {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const handleLogout = () => {
@@ -17,15 +16,7 @@ export default function Navbar({ toggleSidebar }) {
     return (
         <>
             <header className="sticky top-0 z-10 flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 sm:px-6 lg:px-8 shadow-sm">
-                <div className="flex items-center space-x-4">
-                    <button
-                        type="button"
-                        className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 md:hidden"
-                        onClick={toggleSidebar}
-                    >
-                        <span className="sr-only">Open sidebar</span>
-                        <FiMenu className="h-6 w-6" aria-hidden="true" />
-                    </button>
+                <div className="flex items-center">
                     <Link to="/dashboard" className="flex items-center space-x-2">
                         <img src="/logo.png" alt="ToDoMaster Logo" className="h-8" />
                     </Link>

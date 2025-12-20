@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { TrashIcon } from '@heroicons/react/24/solid';
 
-export default function SubTaskList({ taskId }) {
+export default function SubTaskList({ taskId, onProgressUpdate }) {
     const [subTasks, setSubTasks] = useState([]);
     const [newSubTaskTitle, setNewSubTaskTitle] = useState('');
 
@@ -14,6 +14,14 @@ export default function SubTaskList({ taskId }) {
         if (error) console.error('Error fetching sub-tasks:', error);
         else setSubTasks(data);
     };
+
+    useEffect(() => {
+        if (onProgressUpdate) {
+            const completed = subTasks.filter(st => st.is_completed).length;
+            const total = subTasks.length;
+            onProgressUpdate(completed, total);
+        }
+    }, [subTasks, onProgressUpdate]);
 
     useEffect(() => {
         fetchSubTasks();

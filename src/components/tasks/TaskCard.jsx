@@ -11,6 +11,16 @@ const statusStyles = {
 
 export default function TaskCard({ task, onUpdateStatus, onDelete }) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    const handleProgressUpdate = (completed, total) => {
+        const newProgress = total > 0 ? (completed / total) * 100 : 0;
+        setProgress(newProgress);
+
+        if (newProgress === 100 && task.status !== 'completed') {
+            onUpdateStatus(task.id, 'completed');
+        }
+    };
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -64,13 +74,13 @@ export default function TaskCard({ task, onUpdateStatus, onDelete }) {
                 </div>
                 <div className="mt-4">
                     <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                        <div className="bg-emerald-600 h-2.5 rounded-full" style={{ width: `${task.progress}%` }}></div>
+                        <div className="bg-emerald-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
                     </div>
                 </div>
             </div>
             {isExpanded && (
                 <div className="px-4 pb-4">
-                    <SubTaskList taskId={task.id} />
+                    <SubTaskList taskId={task.id} onProgressUpdate={handleProgressUpdate} />
                 </div>
             )}
         </div>

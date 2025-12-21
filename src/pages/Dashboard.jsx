@@ -11,18 +11,27 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ui/toast/ToastContext';
-import { PlusCircleIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { PlusCircleIcon, PlusIcon, FunnelIcon } from '@heroicons/react/24/solid';
+import { applyFilters, hasActiveFilters, clearFilters } from '../utils/filterUtils';
+import FilterPanel from '../components/tasks/FilterPanel';
 
 export default function Dashboard() {
     const { user } = useAuth();
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isQuickAddOpen, setIsQuickAddOpen] = useState(false); // New state for quick add
+    const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('ongoing');
     const [isLoading, setIsLoading] = useState(false);
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [updatingTaskIds, setUpdatingTaskIds] = useState(new Set());
     const [deletingTaskIds, setDeletingTaskIds] = useState(new Set());
+    
+    // Filter states
+    const [priorityFilters, setPriorityFilters] = useState([]); // Multi-select: 'Low', 'Medium', 'High'
+    const [dueDateFilter, setDueDateFilter] = useState(''); // Single-select: 'Today', 'This Week', 'Overdue'
+    const [statusFilters, setStatusFilters] = useState([]); // Multi-select: 'Upcoming', 'Ongoing', 'Completed'
+    const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); // State for filter panel
+    
     const toast = useToast();
 
     const fetchTasks = async () => {
@@ -219,6 +228,19 @@ export default function Dashboard() {
 
     const ongoingTasks = tasks.filter(task => task.status === 'ongoing' || task.status === 'upcoming');
     const completedTasks = tasks.filter(task => task.status === 'completed');
+    
+    // Apply filters to tasks
+    const filteredOngoingTasks = applyFilters(ongoingTasks, {
+        priorityFilters,
+        dueDateFilter,
+        statusFilters
+    });
+    
+    const filteredCompletedTasks = applyFilters(completedTasks, {
+        priorityFilters,
+        dueDateFilter,
+        statusFilters
+    });
 
     return (
         <Layout>
@@ -234,16 +256,50 @@ export default function Dashboard() {
                     }`}>
                         {activeTab === 'ongoing' ? 'Active' : 'Done'}
                     </span>
+                    {/* Active filter indicator */}
+                    {hasActiveFilters({ priorityFilters, dueDateFilter, statusFilters }) && (
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                            Filtered
+                        </span>
+                    )}
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-emerald-500/25"
-                    aria-label="Add new task"
-                    title="Add new task (Ctrl+N)"
-                >
-                    <PlusCircleIcon className="h-5 w-5" />
-                    <span className="font-medium">Add Task</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                    {/* Filter Button */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+                            className={`p-2 rounded-lg ${
+                                hasActiveFilters({ priorityFilters, dueDateFilter, statusFilters })
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                            }`}
+                            aria-label="Filter tasks"
+                            title="Filter tasks"
+                        >
+                            <FunnelIcon className="h-5 w-5" />
+                        </button>
+                        {isFilterPanelOpen && (
+                            <FilterPanel
+                                priorityFilters={priorityFilters}
+                                setPriorityFilters={setPriorityFilters}
+                                dueDateFilter={dueDateFilter}
+                                setDueDateFilter={setDueDateFilter}
+                                statusFilters={statusFilters}
+                                setStatusFilters={setStatusFilters}
+                                onClose={() => setIsFilterPanelOpen(false)}
+                            />
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-emerald-500/25"
+                        aria-label="Add new task"
+                        title="Add new task (Ctrl+N)"
+                    >
+                        <PlusCircleIcon className="h-5 w-5" />
+                        <span className="font-medium">Add Task</span>
+                    </button>
+                </div>
             </div>
 
             {/* Floating Action Button for Quick Add */}
@@ -301,9 +357,9 @@ export default function Dashboard() {
                                     </div>
                                 ))}
                             </div>
-                        ) : ongoingTasks.length > 0 ? (
+                        ) : filteredOngoingTasks.length > 0 ? (
                             <TaskList 
-                                tasks={ongoingTasks} 
+                                tasks={filteredOngoingTasks} 
                                 onUpdateStatus={handleUpdateTaskStatus} 
                                 onDelete={handleDeleteTask}
                                 updatingTaskIds={updatingTaskIds}
@@ -315,6 +371,7 @@ export default function Dashboard() {
                                 onAction={() => setIsModalOpen(true)}
                             />
                         )}
+
                     </div>
                 )}
                 {activeTab === 'completed' && (
@@ -332,9 +389,9 @@ export default function Dashboard() {
                                     </div>
                                 ))}
                             </div>
-                        ) : completedTasks.length > 0 ? (
+                        ) : filteredCompletedTasks.length > 0 ? (
                             <TaskList 
-                                tasks={completedTasks} 
+                                tasks={filteredCompletedTasks} 
                                 onUpdateStatus={handleUpdateTaskStatus} 
                                 onDelete={handleDeleteTask}
                                 updatingTaskIds={updatingTaskIds}
@@ -343,6 +400,7 @@ export default function Dashboard() {
                         ) : (
                             <EmptyState type="completed" />
                         )}
+
                     </div>
                 )}
             </div>

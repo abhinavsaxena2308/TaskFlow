@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ui/toast/ToastContext';
 import { PlusCircleIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/solid';
-import { applyFilters, hasActiveFilters, clearFilters, applyFiltersSearchAndSort } from '../utils/filterUtils';
+import { applyFilters, hasActiveFilters, clearFilters, applyFiltersSearchAndSort, filterTodayTasks } from '../utils/filterUtils';
 import FilterPanel from '../components/tasks/FilterPanel';
 import SortPanel from '../components/tasks/SortPanel';
 
@@ -21,7 +21,7 @@ export default function Dashboard() {
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('ongoing');
+    const [activeTab, setActiveTab] = useState('ongoing'); // Add 'today' as a valid option
     const [isLoading, setIsLoading] = useState(false);
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [updatingTaskIds, setUpdatingTaskIds] = useState(new Set());
@@ -130,6 +130,7 @@ export default function Dashboard() {
         'ctrl+n': () => setIsModalOpen(true),
         'ctrl+1': () => setActiveTab('ongoing'),
         'ctrl+2': () => setActiveTab('completed'),
+        'ctrl+3': () => setActiveTab('today'),
         'escape': () => setIsModalOpen(false),
     }, [setIsModalOpen, setActiveTab]);
 
@@ -237,6 +238,7 @@ export default function Dashboard() {
 
     const ongoingTasks = tasks.filter(task => task.status === 'ongoing' || task.status === 'upcoming');
     const completedTasks = tasks.filter(task => task.status === 'completed');
+    const todayTasks = filterTodayTasks(tasks); // Filter tasks for Today view
     
     // Apply filters and search to tasks
     const filteredOngoingTasks = applyFiltersSearchAndSort(ongoingTasks, {
@@ -249,6 +251,14 @@ export default function Dashboard() {
         priorityFilters,
         dueDateFilter,
         statusFilters
+    }, searchQuery, sortBy, sortDirection);
+    
+    // For Today view, we apply search and sorting but not the regular filters
+    // since the Today view is already a specialized filter
+    const filteredTodayTasks = applyFiltersSearchAndSort(todayTasks, {
+        priorityFilters: [],
+        dueDateFilter: '',
+        statusFilters: []
     }, searchQuery, sortBy, sortDirection);
 
     // Close panels when clicking outside
@@ -280,14 +290,16 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center space-x-3">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {activeTab === 'ongoing' ? 'Ongoing Tasks' : 'Completed Tasks'}
+                        {activeTab === 'today' ? 'Today\'s Tasks' : 
+                         activeTab === 'ongoing' ? 'Ongoing Tasks' : 'Completed Tasks'}
                     </h1>
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        activeTab === 'ongoing' 
-                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' 
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                        activeTab === 'today' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300' :
+                        activeTab === 'ongoing' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                     }`}>
-                        {activeTab === 'ongoing' ? 'Active' : 'Done'}
+                        {activeTab === 'today' ? 'Today' : 
+                         activeTab === 'ongoing' ? 'Active' : 'Done'}
                     </span>
                     {/* Active filter indicator */}
                     {hasActiveFilters({ priorityFilters, dueDateFilter, statusFilters }) && (
@@ -370,6 +382,18 @@ export default function Dashboard() {
             <div className="border-b border-gray-200 dark:border-gray-700" role="tablist" aria-label="Task categories">
                 <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                     <button 
+                        onClick={() => setActiveTab('today')} 
+                        className={`${activeTab === 'today' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                        role="tab"
+                        aria-selected={activeTab === 'today'}
+                        aria-controls="today-panel"
+                        id="today-tab"
+                        tabIndex={activeTab === 'today' ? 0 : -1}
+                    >
+                        Today
+                        <span className="ml-2 text-xs text-gray-400">Ctrl+3</span>
+                    </button>
+                    <button 
                         onClick={() => setActiveTab('ongoing')} 
                         className={`${activeTab === 'ongoing' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
                         role="tab"
@@ -412,14 +436,48 @@ export default function Dashboard() {
                     {searchQuery && (
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {filteredOngoingTasks.length + filteredCompletedTasks.length} results
+                                {activeTab === 'today' ? filteredTodayTasks.length : 
+                                 activeTab === 'ongoing' ? filteredOngoingTasks.length : 
+                                 filteredCompletedTasks.length} results
                             </span>
                         </div>
                     )}
+
                 </div>
             </div>
 
             <div className="mt-8">
+                {activeTab === 'today' && (
+                    <div 
+                        id="today-panel"
+                        role="tabpanel"
+                        aria-labelledby="today-tab"
+                        tabIndex={0}
+                    >
+                        {isLoading ? (
+                            <div className="space-y-4" aria-label="Loading today's tasks">
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                                        <SkeletonLoader lines={3} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : filteredTodayTasks.length > 0 ? (
+                            <TaskList 
+                                tasks={filteredTodayTasks} 
+                                onUpdateStatus={handleUpdateTaskStatus} 
+                                onDelete={handleDeleteTask}
+                                updatingTaskIds={updatingTaskIds}
+                                deletingTaskIds={deletingTaskIds}
+                            />
+                        ) : (
+                            <EmptyState 
+                                type="today" 
+                                onAction={() => setIsModalOpen(true)}
+                            />
+                        )}
+                    </div>
+                )}
                 {activeTab === 'ongoing' && (
                     <div 
                         id="ongoing-panel"

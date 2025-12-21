@@ -140,6 +140,47 @@ export const sortTasks = (tasks, sortBy, direction) => {
 };
 
 /**
+ * Filters tasks for the Today view
+ * Tasks that meet ANY of the following conditions:
+ * - Tasks with due dates set to today's date (regardless of status)
+ * - Overdue tasks (tasks with due dates before today that are not marked as completed)
+ * - Tasks with "ongoing" status (manually set or automatically moved to ongoing)
+ * @param {Array} tasks - Array of task objects
+ * @returns {Array} - Filtered tasks for Today view
+ */
+export const filterTodayTasks = (tasks) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return tasks.filter(task => {
+        // Skip completed tasks entirely
+        if (task.status === 'completed') return false;
+        
+        // Condition 1: Tasks with due dates set to today's date
+        if (task.due_date) {
+            const taskDate = new Date(task.due_date);
+            taskDate.setHours(0, 0, 0, 0);
+            if (taskDate.getTime() === today.getTime()) {
+                return true;
+            }
+        }
+        
+        // Condition 2: Overdue tasks (due dates before today and not completed)
+        if (isTaskOverdue(task)) {
+            return true;
+        }
+        
+        // Condition 3: Tasks with "ongoing" status
+        if (task.status === 'ongoing') {
+            return true;
+        }
+        
+        // If none of the conditions match, exclude the task
+        return false;
+    });
+};
+
+/**
  * Applies all filters to tasks
  * @param {Array} tasks - Array of task objects
  * @param {Object} filters - Object containing all filter states

@@ -26,7 +26,8 @@ export default function SortPanel({
     };
 
     return (
-        <div className="absolute right-0 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-gray-700 sort-panel animate-slideInRight">
+        <div className="w-64 sm:w-80 lg:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 sort-panel" 
+             style={{ position: 'fixed', zIndex: 9999999, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <div className="p-4">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">Sort Tasks</h3>
                 

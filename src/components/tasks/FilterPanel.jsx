@@ -59,7 +59,8 @@ export default function FilterPanel({
     return (
         <div 
             ref={panelRef}
-            className="absolute right-0 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 filter-panel animate-slideInRight"
+            className="w-64 sm:w-80 lg:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 filter-panel"
+            style={{ position: 'fixed', zIndex: 9999999, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
         >
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">

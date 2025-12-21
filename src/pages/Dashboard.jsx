@@ -301,7 +301,7 @@ export default function Dashboard() {
                         </span>
                     )}
                 </div>
-                <div className="flex items-center space-x-2 flex-wrap gap-2">
+                <div className="flex items-center space-x-2 flex-wrap gap-2 relative">
                     {/* Filter Button */}
                     <div className="relative">
                         <button
@@ -317,15 +317,18 @@ export default function Dashboard() {
                             <FunnelIcon className="h-5 w-5" />
                         </button>
                         {isFilterPanelOpen && (
-                            <FilterPanel
-                                priorityFilters={priorityFilters}
-                                setPriorityFilters={setPriorityFilters}
-                                dueDateFilter={dueDateFilter}
-                                setDueDateFilter={setDueDateFilter}
-                                statusFilters={statusFilters}
-                                setStatusFilters={setStatusFilters}
-                                onClose={() => setIsFilterPanelOpen(false)}
-                            />
+                            <div className="absolute right-0 top-full mt-2 sm:right-0 left-0 sm:left-auto">
+                                <FilterPanel
+                                    priorityFilters={priorityFilters}
+                                    setPriorityFilters={setPriorityFilters}
+                                    dueDateFilter={dueDateFilter}
+                                    setDueDateFilter={setDueDateFilter}
+                                    statusFilters={statusFilters}
+                                    setStatusFilters={setStatusFilters}
+                                    onClose={() => setIsFilterPanelOpen(false)}
+                                    buttonRef={event.currentTarget}
+                                />
+                            </div>
                         )}
                     </div>
                     
@@ -344,13 +347,15 @@ export default function Dashboard() {
                             <ArrowsUpDownIcon className="h-5 w-5" />
                         </button>
                         {isSortPanelOpen && (
-                            <SortPanel
-                                sortBy={sortBy}
-                                setSortBy={setSortBy}
-                                sortDirection={sortDirection}
-                                setSortDirection={setSortDirection}
-                                onClose={() => setIsSortPanelOpen(false)}
-                            />
+                            <div className="absolute right-0 top-full mt-2 sm:right-0 left-0 sm:left-auto">
+                                <SortPanel
+                                    sortBy={sortBy}
+                                    setSortBy={setSortBy}
+                                    sortDirection={sortDirection}
+                                    setSortDirection={setSortDirection}
+                                    onClose={() => setIsSortPanelOpen(false)}
+                                />
+                            </div>
                         )}
                     </div>
                     

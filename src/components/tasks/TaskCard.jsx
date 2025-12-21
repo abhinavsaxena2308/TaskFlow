@@ -86,7 +86,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                                         {task.status}
                                     </Menu.Button>
                                 </div>
-                                <Menu.Items className="absolute right-0 z-10 w-40 mt-2 origin-top-right bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-200 ease-in-out transform opacity-0 scale-95 data-[open]:opacity-100 data-[open]:scale-100" role="menu">
+                                <Menu.Items className="absolute right-0 z-10 w-40 mt-2 origin-top-right bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-200 ease-in-out transform opacity-0 scale-95 data-[open]:opacity-100 data-[open]:scale-100 sm:right-0 left-0 sm:left-auto" role="menu">
                                     <div className="px-1 py-1 " role="none">
                                         <Menu.Item>
                                             {({ active }) => (

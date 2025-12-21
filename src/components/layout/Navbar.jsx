@@ -25,7 +25,7 @@ export default function Navbar() {
                         <div className="relative">
                             <img src={logo} className="h-12 w-22 " alt="Task Flow Logo" />
                         </div>
-                        <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        <span className="text-xl font-bold bg-emerald-600 bg-clip-text text-transparent">
                             Task Flow
                         </span>
                     </Link>

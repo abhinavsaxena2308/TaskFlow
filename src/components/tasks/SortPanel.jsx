@@ -26,7 +26,7 @@ export default function SortPanel({
     };
 
     return (
-        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-gray-700 sort-panel">
+        <div className="absolute right-0 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border border-gray-200 dark:border-gray-700 sort-panel animate-slideInRight">
             <div className="p-4">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">Sort Tasks</h3>
                 
@@ -35,15 +35,15 @@ export default function SortPanel({
                         <button
                             key={option.id}
                             onClick={() => handleSortChange(option.id)}
-                            className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm rounded-md ${
+                            className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm rounded-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] min-w-0 ${
                                 sortBy === option.id
                                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
                                     : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                             }`}
                         >
-                            <span>{option.label}</span>
+                            <span className="truncate">{option.label}</span>
                             {sortBy === option.id && (
-                                <span>
+                                <span className="transition-transform duration-200">
                                     {sortDirection === 'asc' ? (
                                         <ChevronUpIcon className="h-4 w-4" />
                                     ) : (
@@ -61,7 +61,7 @@ export default function SortPanel({
                             setSortBy('created_at');
                             setSortDirection('desc');
                         }}
-                        className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:bg-gray-700"
+                        className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-gray-300 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                     >
                         Reset to Default
                     </button>

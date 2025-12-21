@@ -59,34 +59,34 @@ export default function FilterPanel({
     return (
         <div 
             ref={panelRef}
-            className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 filter-panel"
+            className="absolute right-0 mt-2 w-full max-w-xs bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 filter-panel animate-slideInRight"
         >
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Filter Tasks</h3>
                     <button 
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300"
+                        className="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 transition-colors duration-200"
                     >
-                        <XMarkIcon className="h-5 w-5" />
+                        <XMarkIcon className="h-5 w-5 transition-transform duration-200 hover:rotate-90" />
                     </button>
                 </div>
             </div>
 
-            <div className="p-4 space-y-6">
+            <div className="p-4 space-y-6 max-h-[70vh] overflow-y-auto">
                 {/* Priority Filter */}
                 <div>
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</h4>
                     <div className="space-y-2">
                         {priorityOptions.map((priority) => (
-                            <label key={priority} className="flex items-center">
+                            <label key={priority} className="flex items-center group">
                                 <input
                                     type="checkbox"
                                     checked={priorityFilters.includes(priority)}
                                     onChange={() => togglePriorityFilter(priority)}
-                                    className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600"
+                                    className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 transition-all duration-200 flex-shrink-0"
                                 />
-                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{priority}</span>
+                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 min-w-0">{priority}</span>
                             </label>
                         ))}
                     </div>
@@ -97,15 +97,15 @@ export default function FilterPanel({
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Due Date</h4>
                     <div className="space-y-2">
                         {dueDateOptions.map((option) => (
-                            <label key={option} className="flex items-center">
+                            <label key={option} className="flex items-center group">
                                 <input
                                     type="radio"
                                     name="dueDate"
                                     checked={dueDateFilter === option}
                                     onChange={() => handleDueDateChange(option)}
-                                    className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600"
+                                    className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 transition-all duration-200 flex-shrink-0"
                                 />
-                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{option}</span>
+                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 min-w-0">{option}</span>
                             </label>
                         ))}
                     </div>
@@ -116,14 +116,14 @@ export default function FilterPanel({
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</h4>
                     <div className="space-y-2">
                         {statusOptions.map((status) => (
-                            <label key={status} className="flex items-center">
+                            <label key={status} className="flex items-center group">
                                 <input
                                     type="checkbox"
                                     checked={statusFilters.includes(status)}
                                     onChange={() => toggleStatusFilter(status)}
-                                    className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600"
+                                    className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 transition-all duration-200 flex-shrink-0"
                                 />
-                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{status}</span>
+                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 min-w-0">{status}</span>
                             </label>
                         ))}
                     </div>
@@ -133,13 +133,13 @@ export default function FilterPanel({
             <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                 <button
                     onClick={clearAllFilters}
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200 transform hover:scale-105 active:scale-95"
                 >
                     Clear All
                 </button>
                 <button
                     onClick={onClose}
-                    className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800"
+                    className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800 transition-all duration-200 transform hover:scale-105 active:scale-95"
                 >
                     Apply
                 </button>

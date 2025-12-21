@@ -29,8 +29,8 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
     
     // Define styling for overdue tasks
     const cardClass = isOverdue 
-        ? 'bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] border-2 border-red-500 dark:border-red-400' 
-        : 'bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]';
+        ? 'bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01] border-2 border-red-500 dark:border-red-400' 
+        : 'bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.01]';
 
     const handleProgressUpdate = (completed, total) => {
         const newProgress = total > 0 ? (completed / total) * 100 : 0;
@@ -58,40 +58,41 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                     aria-expanded={isExpanded}
                     aria-controls={`task-details-${task.id}`}
                 >
-                    <div className="flex justify-between items-start">
-                        <div className="flex items-start space-x-2">
-                            <h3 id={`task-title-${task.id}`} className="text-lg font-bold text-gray-900 dark:text-gray-100">{task.title}</h3>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                        <div className="flex flex-wrap items-start gap-2 min-w-0">
+                            <h3 id={`task-title-${task.id}`} className="text-lg font-bold text-gray-900 dark:text-gray-100 break-words min-w-0">{task.title}</h3>
                             {/* Priority indicator badge */}
-                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${priorityStyles[task.priority]}`}>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${priorityStyles[task.priority]} transition-all duration-200 whitespace-nowrap`}>
                                 {task.priority}
                             </span>
                             {/* Overdue indicator */}
                             {isOverdue && (
-                                <span className="flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                    <ExclamationTriangleIcon className="h-3 w-3 mr-1" />
-                                    Overdue
+                                <span className="flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 animate-pulse-subtle whitespace-nowrap">
+                                    <ExclamationTriangleIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                                    <span className="hidden xs:inline">Overdue</span>
+                                    <span className="xs:hidden">!</span>
                                 </span>
                             )}
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 ml-0 sm:ml-2">
                             <Menu as="div" className="relative inline-block text-left">
                                 <div>
                                     <Menu.Button 
                                         disabled={isUpdating}
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[task.status]} disabled:opacity-50 inline-flex items-center transition-colors duration-200`}
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[task.status]} disabled:opacity-50 inline-flex items-center transition-all duration-200 transform hover:scale-105 active:scale-95 whitespace-nowrap`}
                                         aria-label={`Change task status, currently ${task.status}`}
                                     >
                                         {isUpdating && <Spinner size="sm" className="mr-2" aria-label="Updating status" />}
                                         {task.status}
                                     </Menu.Button>
                                 </div>
-                                <Menu.Items className="absolute right-0 z-10 w-40 mt-2 origin-top-right bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-200" role="menu">
+                                <Menu.Items className="absolute right-0 z-10 w-40 mt-2 origin-top-right bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none transition-all duration-200 ease-in-out transform opacity-0 scale-95 data-[open]:opacity-100 data-[open]:scale-100" role="menu">
                                     <div className="px-1 py-1 " role="none">
                                         <Menu.Item>
                                             {({ active }) => (
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onUpdateStatus(task.id, 'upcoming'); }} 
-                                                    className={`${active ? 'bg-indigo-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150`}
+                                                    className={`${active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150 transform active:scale-95`}
                                                     role="menuitem"
                                                 >
                                                     Upcoming
@@ -102,7 +103,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                                             {({ active }) => (
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onUpdateStatus(task.id, 'ongoing'); }} 
-                                                    className={`${active ? 'bg-indigo-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150`}
+                                                    className={`${active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150 transform active:scale-95`}
                                                     role="menuitem"
                                                 >
                                                     Ongoing
@@ -113,7 +114,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                                             {({ active }) => (
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onUpdateStatus(task.id, 'completed'); }} 
-                                                    className={`${active ? 'bg-indigo-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150`}
+                                                    className={`${active ? 'bg-emerald-500 text-white' : 'text-gray-900 dark:text-gray-100'} group flex rounded-md items-center w-full px-2 py-2 text-sm transition-colors duration-150 transform active:scale-95`}
                                                     role="menuitem"
                                                 >
                                                     Completed
@@ -126,7 +127,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setIsDeleteModalOpen(true); }} 
                                 disabled={isDeleting}
-                                className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-110 active:scale-90"
                                 aria-label="Delete task"
                                 title="Delete task"
                             >
@@ -138,19 +139,19 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                             </button>
                         </div>
                     </div>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
-                    <div className="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                        <span>Due: {formatDate(task.dueDate || task.due_date)}</span>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 break-words">{task.description}</p>
+                    <div className="mt-4 flex flex-wrap items-center justify-between text-sm text-gray-500 dark:text-gray-400 gap-2">
+                        <span className="break-words min-w-0 truncate">Due: {formatDate(task.dueDate || task.due_date)}</span>
                         <button 
-                            className="-m-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                            className="-m-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-110 active:scale-90"
                             aria-label={isExpanded ? 'Collapse task details' : 'Expand task details'}
                             aria-expanded={isExpanded}
                         >
-                            <ChevronDownIcon className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'transform rotate-180' : ''}`} />
+                            <ChevronDownIcon className={`h-5 w-5 text-gray-400 transition-transform duration-300 ease-in-out ${isExpanded ? 'transform rotate-180' : ''}`} />
                         </button>
                     </div>
                     <div className="mt-4" role="progressbar" aria-valuenow={progress} aria-valuemin="0" aria-valuemax="100" aria-label={`Task progress: ${Math.round(progress)}%`}>
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex flex-wrap items-center justify-between mb-1 gap-2">
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
                             <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{Math.round(progress)}%</span>
                         </div>
@@ -161,7 +162,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                 </div>
                 <div 
                     id={`task-details-${task.id}`}
-                    className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                     aria-hidden={!isExpanded}
                 >
                     <div className="px-4 pb-4">
@@ -182,11 +183,11 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                 title="Delete Task"
                 description={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
             >
-                <div className="mt-4 flex justify-end space-x-2">
+                <div className="mt-4 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                     <button
                         type="button"
                         onClick={() => setIsDeleteModalOpen(false)}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-all duration-200"
                     >
                         Cancel
                     </button>
@@ -196,7 +197,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                             onDelete(task.id);
                             setIsDeleteModalOpen(false);
                         }}
-                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center transition-all duration-200 transform hover:scale-105 active:scale-95"
                         disabled={isDeleting}
                     >
                         {isDeleting && <Spinner size="sm" className="mr-2" />}

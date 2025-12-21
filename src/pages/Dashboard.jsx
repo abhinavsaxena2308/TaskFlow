@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ui/toast/ToastContext';
 import { PlusCircleIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/solid';
-import { applyFilters, hasActiveFilters, clearFilters, applyFiltersSearchAndSort, filterTodayTasks } from '../utils/filterUtils';
+import { applyFilters, hasActiveFilters, clearFilters, applyFiltersSearchAndSort } from '../utils/filterUtils';
 import FilterPanel from '../components/tasks/FilterPanel';
 import SortPanel from '../components/tasks/SortPanel';
 
@@ -21,7 +21,7 @@ export default function Dashboard() {
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('ongoing'); // Add 'today' as a valid option
+    const [activeTab, setActiveTab] = useState('ongoing');
     const [isLoading, setIsLoading] = useState(false);
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [updatingTaskIds, setUpdatingTaskIds] = useState(new Set());
@@ -130,7 +130,6 @@ export default function Dashboard() {
         'ctrl+n': () => setIsModalOpen(true),
         'ctrl+1': () => setActiveTab('ongoing'),
         'ctrl+2': () => setActiveTab('completed'),
-        'ctrl+3': () => setActiveTab('today'),
         'escape': () => setIsModalOpen(false),
     }, [setIsModalOpen, setActiveTab]);
 
@@ -238,7 +237,6 @@ export default function Dashboard() {
 
     const ongoingTasks = tasks.filter(task => task.status === 'ongoing' || task.status === 'upcoming');
     const completedTasks = tasks.filter(task => task.status === 'completed');
-    const todayTasks = filterTodayTasks(tasks); // Filter tasks for Today view
     
     // Apply filters and search to tasks
     const filteredOngoingTasks = applyFiltersSearchAndSort(ongoingTasks, {
@@ -251,14 +249,6 @@ export default function Dashboard() {
         priorityFilters,
         dueDateFilter,
         statusFilters
-    }, searchQuery, sortBy, sortDirection);
-    
-    // For Today view, we apply search and sorting but not the regular filters
-    // since the Today view is already a specialized filter
-    const filteredTodayTasks = applyFiltersSearchAndSort(todayTasks, {
-        priorityFilters: [],
-        dueDateFilter: '',
-        statusFilters: []
     }, searchQuery, sortBy, sortDirection);
 
     // Close panels when clicking outside
@@ -287,19 +277,16 @@ export default function Dashboard() {
 
     return (
         <Layout>
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center space-x-3">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {activeTab === 'today' ? 'Today\'s Tasks' : 
-                         activeTab === 'ongoing' ? 'Ongoing Tasks' : 'Completed Tasks'}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div className="flex items-center space-x-3 flex-wrap gap-2 min-w-0">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">
+                        {activeTab === 'ongoing' ? 'Ongoing Tasks' : 'Completed Tasks'}
                     </h1>
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        activeTab === 'today' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300' :
                         activeTab === 'ongoing' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 
                         'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                     }`}>
-                        {activeTab === 'today' ? 'Today' : 
-                         activeTab === 'ongoing' ? 'Active' : 'Done'}
+                        {activeTab === 'ongoing' ? 'Active' : 'Done'}
                     </span>
                     {/* Active filter indicator */}
                     {hasActiveFilters({ priorityFilters, dueDateFilter, statusFilters }) && (
@@ -314,7 +301,7 @@ export default function Dashboard() {
                         </span>
                     )}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-wrap gap-2">
                     {/* Filter Button */}
                     <div className="relative">
                         <button
@@ -323,7 +310,7 @@ export default function Dashboard() {
                                 hasActiveFilters({ priorityFilters, dueDateFilter, statusFilters })
                                     ? 'bg-emerald-600 text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                            }`}
+                            } transition-all duration-200 transform hover:scale-105 active:scale-95`}
                             aria-label="Filter tasks"
                             title="Filter tasks"
                         >
@@ -350,7 +337,7 @@ export default function Dashboard() {
                                 sortBy !== 'created_at'
                                     ? 'bg-blue-600 text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                            }`}
+                            } transition-all duration-200 transform hover:scale-105 active:scale-95`}
                             aria-label="Sort tasks"
                             title="Sort tasks"
                         >
@@ -369,53 +356,41 @@ export default function Dashboard() {
                     
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-emerald-500/25"
+                        className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-emerald-500/25"
                         aria-label="Add new task"
                         title="Add new task (Ctrl+N)"
                     >
                         <PlusCircleIcon className="h-5 w-5" />
-                        <span className="font-medium">Add Task</span>
+                        <span className="font-medium hidden sm:inline">Add Task</span>
                     </button>
                 </div>
             </div>
 
             <div className="border-b border-gray-200 dark:border-gray-700" role="tablist" aria-label="Task categories">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button 
-                        onClick={() => setActiveTab('today')} 
-                        className={`${activeTab === 'today' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
-                        role="tab"
-                        aria-selected={activeTab === 'today'}
-                        aria-controls="today-panel"
-                        id="today-tab"
-                        tabIndex={activeTab === 'today' ? 0 : -1}
-                    >
-                        Today
-                        <span className="ml-2 text-xs text-gray-400">Ctrl+3</span>
-                    </button>
+                <nav className="-mb-px flex space-x-6 md:space-x-8 overflow-x-auto" aria-label="Tabs">
                     <button 
                         onClick={() => setActiveTab('ongoing')} 
-                        className={`${activeTab === 'ongoing' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                        className={`${activeTab === 'ongoing' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95 min-w-0`}
                         role="tab"
                         aria-selected={activeTab === 'ongoing'}
                         aria-controls="ongoing-panel"
                         id="ongoing-tab"
                         tabIndex={activeTab === 'ongoing' ? 0 : -1}
                     >
-                        Ongoing
-                        <span className="ml-2 text-xs text-gray-400">Ctrl+1</span>
+                        <span className="truncate">Ongoing</span>
+                        <span className="ml-2 text-xs text-gray-400 hidden sm:inline">Ctrl+1</span>
                     </button>
                     <button 
                         onClick={() => setActiveTab('completed')} 
-                        className={`${activeTab === 'completed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                        className={`${activeTab === 'completed' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform hover:scale-105 active:scale-95 min-w-0`}
                         role="tab"
                         aria-selected={activeTab === 'completed'}
                         aria-controls="completed-panel"
                         id="completed-tab"
                         tabIndex={activeTab === 'completed' ? 0 : -1}
                     >
-                        Completed
-                        <span className="ml-2 text-xs text-gray-400">Ctrl+2</span>
+                        <span className="truncate">Completed</span>
+                        <span className="ml-2 text-xs text-gray-400 hidden sm:inline">Ctrl+2</span>
                     </button>
                 </nav>
             </div>
@@ -424,60 +399,27 @@ export default function Dashboard() {
             <div className="mt-4">
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 transition-all duration-200" />
                     </div>
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search tasks…"
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 sm:text-sm"
+                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 sm:text-sm transition-all duration-200"
                     />
                     {searchQuery && (
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {activeTab === 'today' ? filteredTodayTasks.length : 
-                                 activeTab === 'ongoing' ? filteredOngoingTasks.length : 
+                            <span className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-200">
+                                {activeTab === 'ongoing' ? filteredOngoingTasks.length : 
                                  filteredCompletedTasks.length} results
                             </span>
                         </div>
                     )}
-
                 </div>
             </div>
 
             <div className="mt-8">
-                {activeTab === 'today' && (
-                    <div 
-                        id="today-panel"
-                        role="tabpanel"
-                        aria-labelledby="today-tab"
-                        tabIndex={0}
-                    >
-                        {isLoading ? (
-                            <div className="space-y-4" aria-label="Loading today's tasks">
-                                {Array.from({ length: 3 }).map((_, i) => (
-                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-                                        <SkeletonLoader lines={3} />
-                                    </div>
-                                ))}
-                            </div>
-                        ) : filteredTodayTasks.length > 0 ? (
-                            <TaskList 
-                                tasks={filteredTodayTasks} 
-                                onUpdateStatus={handleUpdateTaskStatus} 
-                                onDelete={handleDeleteTask}
-                                updatingTaskIds={updatingTaskIds}
-                                deletingTaskIds={deletingTaskIds}
-                            />
-                        ) : (
-                            <EmptyState 
-                                type="today" 
-                                onAction={() => setIsModalOpen(true)}
-                            />
-                        )}
-                    </div>
-                )}
                 {activeTab === 'ongoing' && (
                     <div 
                         id="ongoing-panel"
@@ -540,26 +482,28 @@ export default function Dashboard() {
             </div>
 
             {/* Floating Action Button for Quick Add */}
-            <button
-                onClick={() => setIsQuickAddOpen(true)}
-                className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-40 p-4 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800 transition-all duration-200 transform hover:scale-110"
-                aria-label="Quick add task"
-                title="Quick add task"
-            >
-                <PlusIcon className="h-6 w-6" />
-            </button>
+            <>
+                <button
+                    onClick={() => setIsQuickAddOpen(true)}
+                    className="fixed bottom-8 right-8 md:bottom-12 md:right-12 z-40 p-4 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800 transition-all duration-200 transform hover:scale-110"
+                    aria-label="Quick add task"
+                    title="Quick add task"
+                >
+                    <PlusIcon className="h-6 w-6" />
+                </button>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add a new task">
-                <AddTask onAddTask={handleAddTask} onCancel={() => setIsModalOpen(false)} />
-            </Modal>
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add a new task">
+                    <AddTask onAddTask={handleAddTask} onCancel={() => setIsModalOpen(false)} />
+                </Modal>
 
-            {/* Quick Add Task Modal */}
-            {isQuickAddOpen && (
-                <QuickAddTask 
-                    onSubmit={handleQuickAddTask} 
-                    onCancel={() => setIsQuickAddOpen(false)} 
-                />
-            )}
+                {/* Quick Add Task Modal */}
+                {isQuickAddOpen && (
+                    <QuickAddTask 
+                        onSubmit={handleQuickAddTask} 
+                        onCancel={() => setIsQuickAddOpen(false)} 
+                    />
+                )}
+            </>
         </Layout>
     );
 }

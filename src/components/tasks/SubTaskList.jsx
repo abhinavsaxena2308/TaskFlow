@@ -73,33 +73,41 @@ export default function SubTaskList({ taskId, taskStatus, onProgressUpdate, onTa
             <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Sub-tasks</h4>
             <ul className="space-y-2">
                 {subTasks.map((subTask) => (
-                    <li key={subTask.id} className="flex items-center justify-between">
-                        <div className="flex items-center">
+                    <li key={subTask.id} className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                        <div className="flex items-center min-w-0">
                             <input
                                 type="checkbox"
                                 checked={subTask.is_completed}
                                 onChange={() => handleToggleComplete(subTask.id, subTask.is_completed)}
-                                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 bg-gray-100 dark:bg-gray-900"
+                                className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 bg-gray-100 dark:bg-gray-900 transition-colors duration-200 flex-shrink-0"
                             />
-                            <span className={`ml-3 text-sm ${subTask.is_completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                            <span className={`ml-3 text-sm ${subTask.is_completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-200'} min-w-0 truncate`}>
                                 {subTask.title}
                             </span>
                         </div>
-                        <button onClick={() => handleDeleteSubTask(subTask.id)} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <button 
+                            onClick={() => handleDeleteSubTask(subTask.id)} 
+                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 transform hover:scale-110 active:scale-95"
+                        >
                             <TrashIcon className="h-4 w-4 text-red-500" />
                         </button>
                     </li>
                 ))}
             </ul>
-            <form onSubmit={handleAddSubTask} className="mt-3 flex items-center">
+            <form onSubmit={handleAddSubTask} className="mt-3 flex flex-col sm:flex-row gap-2">
                 <input
                     type="text"
                     value={newSubTaskTitle}
                     onChange={(e) => setNewSubTaskTitle(e.target.value)}
                     placeholder="Add a new sub-task..."
-                    className="flex-grow text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="flex-grow text-sm rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200"
                 />
-                <button type="submit" className="ml-2 px-3 py-1 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700">Add</button>
+                <button 
+                    type="submit" 
+                    className="px-3 py-1 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                    Add
+                </button>
             </form>
         </div>
     );

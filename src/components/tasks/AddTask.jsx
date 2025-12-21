@@ -38,16 +38,35 @@ export default function AddTask({ onAddTask, onCancel }) {
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Task Name</label>
-                <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+                <input 
+                    type="text" 
+                    id="title" 
+                    value={title} 
+                    onChange={(e) => setTitle(e.target.value)} 
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200" 
+                    required 
+                />
             </div>
             <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                <textarea 
+                    id="description" 
+                    value={description} 
+                    onChange={(e) => setDescription(e.target.value)} 
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200" 
+                />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Completion Date</label>
-                    <input type="date" id="dueDate" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+                    <input 
+                        type="date" 
+                        id="dueDate" 
+                        value={dueDate} 
+                        onChange={(e) => setDueDate(e.target.value)} 
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200 min-w-0" 
+                        required 
+                    />
                 </div>
                 <div>
                     <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
@@ -55,7 +74,7 @@ export default function AddTask({ onAddTask, onCancel }) {
                         id="priority" 
                         value={priority} 
                         onChange={(e) => setPriority(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200 min-w-0"
                     >
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
@@ -68,21 +87,46 @@ export default function AddTask({ onAddTask, onCancel }) {
                 <div className="space-y-2 mt-1">
                     {subTasks.map((subTask, index) => (
                         <div key={index} className="flex items-center space-x-2">
-                            <input type="text" value={subTask} onChange={(e) => handleSubTaskChange(index, e.target.value)} className="flex-grow block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder={`Sub-task ${index + 1}`} />
-                            <button type="button" onClick={() => handleRemoveSubTask(index)} className="p-1 text-red-500 hover:text-red-700">
+                            <input 
+                                type="text" 
+                                value={subTask} 
+                                onChange={(e) => handleSubTaskChange(index, e.target.value)} 
+                                className="flex-grow block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200" 
+                                placeholder={`Sub-task ${index + 1}`} 
+                            />
+                            <button 
+                                type="button" 
+                                onClick={() => handleRemoveSubTask(index)} 
+                                className="p-1 text-red-500 hover:text-red-700 transition-colors duration-200 transform hover:scale-110 active:scale-95"
+                            >
                                 <TrashIcon className="h-5 w-5" />
                             </button>
                         </div>
                     ))}
                 </div>
-                <button type="button" onClick={handleAddSubTask} className="mt-2 flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-800">
+                <button 
+                    type="button" 
+                    onClick={handleAddSubTask} 
+                    className="mt-2 flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-800 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+                >
                     <PlusIcon className="h-5 w-5 mr-1" />
                     Add Sub-task
                 </button>
             </div>
-            <div className="flex justify-end space-x-2">
-                <button type="button" onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700">Add Task</button>
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+                <button 
+                    type="button" 
+                    onClick={onCancel} 
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-all duration-200"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                    Add Task
+                </button>
             </div>
         </form>
     );

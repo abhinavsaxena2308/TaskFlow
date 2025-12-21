@@ -21,7 +21,12 @@ export default {
           '900': '#064e3b',
           '950': '#022c22',
         },
-      }
+      },
+      screens: {
+        'xs': '475px',
+        'xxs': '320px',
+        // => @media (min-width: 475px) { ... }
+      },
     },
   },
   plugins: [],

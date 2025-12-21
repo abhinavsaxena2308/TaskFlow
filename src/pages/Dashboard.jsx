@@ -25,19 +25,77 @@ export default function Dashboard() {
 
     const fetchTasks = async () => {
         setIsLoading(true);
-        // Simple query first to test connection
-        const { data, error } = await supabase
+        
+        // First, fetch all tasks for the user
+        const { data: tasksData, error: fetchError } = await supabase
             .from('tasks')
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching tasks:', error);
+        if (fetchError) {
+            console.error('Error fetching tasks:', fetchError);
             toast.error('Error', 'Failed to fetch tasks.');
-        } else {
-            setTasks(data || []);
+            setIsLoading(false);
+            return;
         }
+
+        // Identify tasks that need status updates
+        // Criteria: status is 'upcoming' AND due_date is today or earlier
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+        
+        const tasksToUpdate = tasksData.filter(task => {
+            // Skip if task is already completed
+            if (task.status === 'completed') return false;
+            
+            // Only consider upcoming tasks
+            if (task.status !== 'upcoming') return false;
+            
+            // Check if due_date is today or earlier
+            if (task.due_date) {
+                const dueDate = new Date(task.due_date);
+                dueDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
+                return dueDate <= today;
+            }
+            
+            return false;
+        });
+
+        // Update eligible tasks to 'ongoing' status
+        if (tasksToUpdate.length > 0) {
+            const taskIds = tasksToUpdate.map(task => task.id);
+            
+            const { error: updateError } = await supabase
+                .from('tasks')
+                .update({ status: 'ongoing' })
+                .in('id', taskIds);
+                
+            if (updateError) {
+                console.error('Error updating task statuses:', updateError);
+                toast.error('Error', 'Failed to update task statuses.');
+                // Continue with displaying tasks even if updates fail
+            } else {
+                // Show a notification about the automatic updates
+                toast.success('Success', `Automatically moved ${tasksToUpdate.length} task${tasksToUpdate.length > 1 ? 's' : ''} to ongoing status.`);
+            }
+        }
+        
+        // Fetch updated tasks to ensure UI reflects current state
+        const { data: updatedTasksData, error: updatedFetchError } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (updatedFetchError) {
+            console.error('Error fetching updated tasks:', updatedFetchError);
+            toast.error('Error', 'Failed to fetch updated tasks.');
+            setTasks(tasksData || []); // Use original data if updated fetch fails
+        } else {
+            setTasks(updatedTasksData || []);
+        }
+        
         setIsLoading(false);
     };
 

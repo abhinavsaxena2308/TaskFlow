@@ -35,7 +35,7 @@ export default function AddTask({ onAddTask, onCancel }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
             <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Task Name</label>
                 <input 

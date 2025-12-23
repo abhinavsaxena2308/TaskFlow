@@ -165,7 +165,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                     className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                     aria-hidden={!isExpanded}
                 >
-                    <div className="px-4 pb-4">
+                    <div className="px-4 pb-4 max-h-60 overflow-y-auto custom-scrollbar">
                         <SubTaskList 
                             taskId={task.id} 
                             taskStatus={task.status}

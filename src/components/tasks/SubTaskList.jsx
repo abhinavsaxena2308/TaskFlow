@@ -71,6 +71,21 @@ export default function SubTaskList({ taskId, taskStatus, onProgressUpdate, onTa
     return (
         <div className="mt-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
             <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Sub-tasks</h4>
+            <form onSubmit={handleAddSubTask} className="mb-3 flex flex-col sm:flex-row gap-2">
+                <input
+                    type="text"
+                    value={newSubTaskTitle}
+                    onChange={(e) => setNewSubTaskTitle(e.target.value)}
+                    placeholder="Add a new sub-task..."
+                    className="flex-grow text-sm rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200"
+                />
+                <button 
+                    type="submit" 
+                    className="px-3 py-1 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                >
+                    Add
+                </button>
+            </form>
             <ul className="space-y-2">
                 {subTasks.map((subTask) => (
                     <li key={subTask.id} className="flex flex-wrap items-center justify-between gap-2 min-w-0">
@@ -94,21 +109,6 @@ export default function SubTaskList({ taskId, taskStatus, onProgressUpdate, onTa
                     </li>
                 ))}
             </ul>
-            <form onSubmit={handleAddSubTask} className="mt-3 flex flex-col sm:flex-row gap-2">
-                <input
-                    type="text"
-                    value={newSubTaskTitle}
-                    onChange={(e) => setNewSubTaskTitle(e.target.value)}
-                    placeholder="Add a new sub-task..."
-                    className="flex-grow text-sm rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors duration-200"
-                />
-                <button 
-                    type="submit" 
-                    className="px-3 py-1 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
-                >
-                    Add
-                </button>
-            </form>
         </div>
     );
 }

@@ -425,65 +425,67 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-8">
-                {activeTab === 'ongoing' && (
-                    <div 
-                        id="ongoing-panel"
-                        role="tabpanel"
-                        aria-labelledby="ongoing-tab"
-                        tabIndex={0}
-                    >
-                        {isLoading ? (
-                            <div className="space-y-4" aria-label="Loading ongoing tasks">
-                                {Array.from({ length: 3 }).map((_, i) => (
-                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-                                        <SkeletonLoader lines={3} />
-                                    </div>
-                                ))}
-                            </div>
-                        ) : filteredOngoingTasks.length > 0 ? (
-                            <TaskList 
-                                tasks={filteredOngoingTasks} 
-                                onUpdateStatus={handleUpdateTaskStatus} 
-                                onDelete={handleDeleteTask}
-                                updatingTaskIds={updatingTaskIds}
-                                deletingTaskIds={deletingTaskIds}
-                            />
-                        ) : (
-                            <EmptyState 
-                                type="ongoing" 
-                                onAction={() => setIsModalOpen(true)}
-                            />
-                        )}
-                    </div>
-                )}
-                {activeTab === 'completed' && (
-                    <div 
-                        id="completed-panel"
-                        role="tabpanel"
-                        aria-labelledby="completed-tab"
-                        tabIndex={0}
-                    >
-                        {isLoading ? (
-                            <div className="space-y-4" aria-label="Loading completed tasks">
-                                {Array.from({ length: 2 }).map((_, i) => (
-                                    <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-                                        <SkeletonLoader lines={3} />
-                                    </div>
-                                ))}
-                            </div>
-                        ) : filteredCompletedTasks.length > 0 ? (
-                            <TaskList 
-                                tasks={filteredCompletedTasks} 
-                                onUpdateStatus={handleUpdateTaskStatus} 
-                                onDelete={handleDeleteTask}
-                                updatingTaskIds={updatingTaskIds}
-                                deletingTaskIds={deletingTaskIds}
-                            />
-                        ) : (
-                            <EmptyState type="completed" />
-                        )}
-                    </div>
-                )}
+                <div className="max-h-[calc(100vh-400px)] overflow-y-auto pr-2 -mr-2">
+                    {activeTab === 'ongoing' && (
+                        <div 
+                            id="ongoing-panel"
+                            role="tabpanel"
+                            aria-labelledby="ongoing-tab"
+                            tabIndex={0}
+                        >
+                            {isLoading ? (
+                                <div className="space-y-4" aria-label="Loading ongoing tasks">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                                            <SkeletonLoader lines={3} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : filteredOngoingTasks.length > 0 ? (
+                                <TaskList 
+                                    tasks={filteredOngoingTasks} 
+                                    onUpdateStatus={handleUpdateTaskStatus} 
+                                    onDelete={handleDeleteTask}
+                                    updatingTaskIds={updatingTaskIds}
+                                    deletingTaskIds={deletingTaskIds}
+                                />
+                            ) : (
+                                <EmptyState 
+                                    type="ongoing" 
+                                    onAction={() => setIsModalOpen(true)}
+                                />
+                            )}
+                        </div>
+                    )}
+                    {activeTab === 'completed' && (
+                        <div 
+                            id="completed-panel"
+                            role="tabpanel"
+                            aria-labelledby="completed-tab"
+                            tabIndex={0}
+                        >
+                            {isLoading ? (
+                                <div className="space-y-4" aria-label="Loading completed tasks">
+                                    {Array.from({ length: 2 }).map((_, i) => (
+                                        <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                                            <SkeletonLoader lines={3} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : filteredCompletedTasks.length > 0 ? (
+                                <TaskList 
+                                    tasks={filteredCompletedTasks} 
+                                    onUpdateStatus={handleUpdateTaskStatus} 
+                                    onDelete={handleDeleteTask}
+                                    updatingTaskIds={updatingTaskIds}
+                                    deletingTaskIds={deletingTaskIds}
+                                />
+                            ) : (
+                                <EmptyState type="completed" />
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Floating Action Button for Quick Add */}

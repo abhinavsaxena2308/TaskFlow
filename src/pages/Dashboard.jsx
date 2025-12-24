@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import TaskList from '../components/tasks/TaskList';
 import AddTask from '../components/tasks/AddTask';
@@ -11,7 +12,7 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ui/toast/ToastContext';
-import { PlusCircleIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/solid';
+import { PlusCircleIcon, PlusIcon, FunnelIcon, MagnifyingGlassIcon, ArrowsUpDownIcon, HomeIcon } from '@heroicons/react/24/solid';
 import { applyFilters, hasActiveFilters, clearFilters, applyFiltersSearchAndSort } from '../utils/filterUtils';
 import FilterPanel from '../components/tasks/FilterPanel';
 import SortPanel from '../components/tasks/SortPanel';
@@ -302,6 +303,14 @@ export default function Dashboard() {
                     )}
                 </div>
                 <div className="flex items-center space-x-2 flex-wrap gap-2 relative">
+                    <Link 
+                        to="/"
+                        className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 active:scale-95 inline-flex items-center"
+                        aria-label="Go to home page"
+                        title="Go to home page"
+                    >
+                        <HomeIcon className="h-5 w-5" />
+                    </Link>
                     {/* Filter Button */}
                     <div className="relative">
                         <button

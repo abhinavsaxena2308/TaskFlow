@@ -30,6 +30,9 @@ export const AuthProvider = ({ children }) => {
         const fetchUserProfile = async () => {
             if (!user) return;
             
+            // Prevent fetching profile if it's already loaded
+            if (user.user_metadata?.full_name) return;
+            
             try {
                 const { data: profileData, error } = await supabase
                     .from('profiles')
@@ -37,13 +40,13 @@ export const AuthProvider = ({ children }) => {
                     .eq('id', user.id)
                     .single();
                 
-                if (!error && profileData) {
+                if (!error && profileData && profileData.name) {
                     // Merge profile data with user data
                     setUser(prevUser => ({
                         ...prevUser,
                         user_metadata: {
                             ...prevUser.user_metadata,
-                            full_name: profileData.name || prevUser.user_metadata?.full_name
+                            full_name: profileData.name
                         }
                     }));
                 }

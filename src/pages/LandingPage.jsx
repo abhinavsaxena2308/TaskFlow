@@ -174,10 +174,10 @@ export default function LandingPage() {
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                             <Link 
-                                to="/dashboard" 
+                                to={user ? "/dashboard" : "/signup"}
                                 className="px-8 py-4 text-lg font-medium text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 flex items-center space-x-2"
                             >
-                                <span>Get Started</span>
+                                <span>{user ? "Dashboard" : "Get Started"}</span>
                                 <ArrowRightIcon className="h-5 w-5" />
                             </Link>
                             <a href="https://github.com/abhinavsaxena2308/ToDoMaster" target="_blank" rel="noopener noreferrer" className={`px-8 py-4 text-lg font-medium ${isDarkMode ? 'text-white border-white/20 hover:bg-white/10' : 'text-gray-900 border-gray-300 hover:bg-gray-50'} border rounded-xl transition-all duration-200 flex items-center space-x-2`}>

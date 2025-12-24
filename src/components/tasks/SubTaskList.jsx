@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { TrashIcon } from '@heroicons/react/24/solid';
 
@@ -15,11 +15,19 @@ export default function SubTaskList({ taskId, taskStatus, onProgressUpdate, onTa
         else setSubTasks(data);
     };
 
+    const initialLoadRef = useRef(true);
+    
     useEffect(() => {
-        if (onProgressUpdate) {
-            const completed = subTasks.filter(st => st.is_completed).length;
-            const total = subTasks.length;
-            onProgressUpdate(completed, total);
+        // Skip progress update on initial load
+        if (initialLoadRef.current) {
+            initialLoadRef.current = false;
+        } else {
+            // Only call onProgressUpdate after the initial load
+            if (onProgressUpdate) {
+                const completed = subTasks.filter(st => st.is_completed).length;
+                const total = subTasks.length;
+                onProgressUpdate(completed, total);
+            }
         }
     }, [subTasks, onProgressUpdate]);
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Modal from '../ui/Modal';
 import SubTaskList from './SubTaskList';
 import { formatDate } from '../../utils/taskUtils';
@@ -9,14 +10,15 @@ const statusStyles = {
     completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
 };
 
-// Priority styles for visual indicators
 const priorityStyles = {
     Low: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
     Medium: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
     High: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-export default function TaskModal({ isOpen, onClose, task, onUpdateStatus, onDelete, onTaskStatusUpdate, onProgressUpdate }) {
+export default function TaskModal({ isOpen, onClose, task, onUpdateStatus, onDelete, onTaskStatusUpdate, onProgressUpdate, refetchTasks }) {
+    const [localProgress, setLocalProgress] = useState(() => task?.progress || 0);
+    
     if (!task) return null;
 
     return (
@@ -40,6 +42,21 @@ export default function TaskModal({ isOpen, onClose, task, onUpdateStatus, onDel
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                         Due: {formatDate(task.dueDate || task.due_date)}
                     </div>
+                    {/* Progress section */}
+                    <div className="flex flex-col space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                {localProgress}%
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                            <div 
+                                className="bg-emerald-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                                style={{ width: `${localProgress}%` }}
+                            ></div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Task description */}
@@ -54,24 +71,39 @@ export default function TaskModal({ isOpen, onClose, task, onUpdateStatus, onDel
                         <SubTaskList 
                             taskId={task.id} 
                             taskStatus={task.status}
-                            onProgressUpdate={async (completed, total) => {
+                            onProgressUpdate={(completed, total) => {
                                 // Calculate the progress percentage
                                 const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
                                 
-                                // Update the progress in the database
-                                const { data, error } = await supabase
-                                    .from('tasks')
-                                    .update({ progress })
-                                    .eq('id', task.id);
-
-                                if (error) {
-                                    console.error('Error updating task progress:', error);
-                                } else {
-                                    // If all subtasks are completed and task is not already completed, update status
-                                    if (progress === 100 && task.status !== 'completed') {
-                                        onTaskStatusUpdate(task.id, 'completed');
+                                // Update the local state immediately for UI responsiveness
+                                setLocalProgress(progress);
+                                
+                                // Update the progress in the database asynchronously
+                                // Note: This requires a 'progress' column in the tasks table
+                                const updateProgressInDB = async () => {
+                                    const { error } = await supabase
+                                        .from('tasks')
+                                        .update({ progress: progress })
+                                        .eq('id', task.id);
+                                    
+                                    // If there's an error (like column doesn't exist), we'll continue
+                                    // The progress will still be updated in the UI via local state
+                                    
+                                    if (error) {
+                                        console.error('Error updating task progress:', error);
+                                        // Revert local state if database update fails
+                                        setLocalProgress(task?.progress || 0);
+                                    } else {
+                                        // If all subtasks are completed and task is not already completed, update status
+                                        if (progress === 100 && task.status !== 'completed') {
+                                            onTaskStatusUpdate(task.id, 'completed');
+                                        }
+                                        // Note: Progress is updated in database but UI refresh is handled by parent
+                                        // to avoid infinite loops when opening modal
                                     }
-                                }
+                                };
+                                
+                                updateProgressInDB();
                             }}
                             onTaskStatusUpdate={onTaskStatusUpdate}
                         />

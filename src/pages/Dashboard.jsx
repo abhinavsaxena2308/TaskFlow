@@ -457,6 +457,7 @@ export default function Dashboard() {
                                 onTaskStatusUpdate={handleUpdateTaskStatus}
                                 updatingTaskIds={updatingTaskIds}
                                 deletingTaskIds={deletingTaskIds}
+                                refetchTasks={fetchTasks}
                             />
                         ) : (
                             <EmptyState 
@@ -489,6 +490,7 @@ export default function Dashboard() {
                                 onTaskStatusUpdate={handleUpdateTaskStatus}
                                 updatingTaskIds={updatingTaskIds}
                                 deletingTaskIds={deletingTaskIds}
+                                refetchTasks={fetchTasks}
                             />
                         ) : (
                             <EmptyState type="completed" />

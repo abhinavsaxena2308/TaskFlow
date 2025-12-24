@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Spinner from '../ui/Spinner';
 import Modal from '../ui/Modal';
 import TaskModal from './TaskModal';
@@ -19,13 +19,34 @@ const priorityStyles = {
     High: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, isDeleting, onTaskStatusUpdate }) {
+export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, isDeleting, onTaskStatusUpdate, refetchTasks }) {
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [progress, setProgress] = useState(() => {
+        // Calculate initial progress from task's subtasks
+        if (task.subTasks && task.subTasks.length > 0) {
+            const completed = task.subTasks.filter(st => st.isCompleted).length;
+            const total = task.subTasks.length;
+            return total > 0 ? Math.round((completed / total) * 100) : 0;
+        }
+        return task.progress || 0;
+    });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     
     // Check if the task is overdue
     const isOverdue = isTaskOverdue(task);
+    
+    // Update progress when task prop changes (e.g., after refetch)
+    useEffect(() => {
+        // Calculate progress from task's subtasks
+        if (task.subTasks && task.subTasks.length > 0) {
+            const completed = task.subTasks.filter(st => st.isCompleted).length;
+            const total = task.subTasks.length;
+            setProgress(total > 0 ? Math.round((completed / total) * 100) : 0);
+        } else {
+            // Use progress from the task if no subTasks array is available
+            setProgress(task.progress || 0);
+        }
+    }, [task]);
     
     // Define styling for overdue tasks
     const cardClass = isOverdue 
@@ -171,6 +192,7 @@ export default function TaskCard({ task, onUpdateStatus, onDelete, isUpdating, i
                 onDelete={onDelete}
                 onTaskStatusUpdate={onTaskStatusUpdate}
                 onProgressUpdate={handleProgressUpdate}
+                refetchTasks={refetchTasks}
             />
             
             {/* Delete Confirmation Modal */}
